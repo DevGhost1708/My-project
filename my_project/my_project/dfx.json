@@ -1,0 +1,14 @@
+{
+  "canisters": {
+    "my_project": {
+      "main": "src/my_project/main.ts",
+      "type": "typescript"
+    }
+  },
+  "defaults": {
+    "build": {
+      "packtool": ""
+    }
+  },
+  "dfx": "0.8.0"
+}
