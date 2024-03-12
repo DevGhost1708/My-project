@@ -2,7 +2,7 @@ import { Principal } from "@dfinity/principal";
 import { context, storage } from "ic0";
 
 // Define types
-type AuctionId = number;
+type AuctionId = bigint;
 type Bid = { bidder: Principal; amount: bigint };
 type AuctionStatus = "Open" | "Closed";
 
@@ -17,7 +17,7 @@ interface Auction {
 
 // Function to create a new auction
 export function createAuction(item: string, minimumBid: bigint): AuctionId {
-    const auctionId = storage.get<AuctionId>("auctionId") || 0;
+    const auctionId = storage.get<AuctionId>("auctionId") || 0n;
     const auction: Auction = {
         seller: context.caller,
         item,
@@ -26,7 +26,7 @@ export function createAuction(item: string, minimumBid: bigint): AuctionId {
         status: "Open",
     };
     storage.set(auctionId, auction);
-    storage.set("auctionId", auctionId + 1);
+    storage.set("auctionId", auctionId + 1n);
     return auctionId;
 }
 
@@ -43,8 +43,11 @@ export function placeBid(auctionId: AuctionId, amount: bigint): void {
         throw new Error("Bid amount must be higher than the current highest bid");
     }
     const bidder = context.caller;
-    auction.bids.push({ bidder, amount });
-    storage.set(auctionId, auction);
+    const updatedAuction: Auction = {
+        ...auction,
+        bids: [...auction.bids, { bidder, amount }],
+    };
+    storage.set(auctionId, updatedAuction);
 }
 
 // Function to close an auction and determine the winner
